@@ -8,7 +8,7 @@ Patches:
   P3a/b: Remove beta query param from API URLs
   P4: MiniMax thinking block compatibility — fix --print output
   P5: WebFetch — bypass domain blocklist preflight (api.anthropic.com check)
-  P6: WebSearch — enable for all API providers (not just firstParty/vertex/foundry)
+  P6: WebSearch — replace with Tavily API (works with any provider, needs TAVILY_API_KEY)
 
 Usage: python3 patch_single.py [/build/dist/cli_single.js]
 Output: /build/dist/cli_single_patched.js (same dir, _patched suffix)
@@ -137,16 +137,46 @@ patch_re('P5: WebFetch bypass domain blocklist',
     'async function checkDomainBlocklist(domain2) { return { status: "allowed" }; }',
     flags=re.DOTALL | re.MULTILINE)
 
-# ── P6: WebSearch — enable for all API providers ──────────────────────────────
-# isEnabled() only returns true for firstParty, vertex (claude-4 models), foundry.
-# With third-party providers (MiniMax, OpenAI-compatible, etc.) the tool is hidden.
-# Note: WebSearch uses Anthropic's server-side web_search_20250305 tool, so it will
-# only actually execute searches when using Anthropic's own API endpoint. With other
-# providers the tool will appear but searches will fail gracefully. Users who want
-# web search with third-party providers should use a Tavily/Brave MCP server instead.
-patch_re('P6: WebSearch enable for all providers',
-    r'(isEnabled\(\)\s*\{)\s*const provider = getAPIProvider\(\);.*?return false;\s*\}',
-    r'\1 return true; }',
+# ── P6: WebSearch — replace call() with Tavily API ───────────────────────────
+# Anthropic's web_search_20250305 server-side tool only works with firstParty/
+# vertex/foundry. Replace the entire call() function with a direct Tavily HTTP
+# call so WebSearch works with any API provider.
+# Requires: TAVILY_API_KEY environment variable.
+# Tavily API: POST https://api.tavily.com/search
+#   body: { api_key, query, max_results, include_answer, include_domains, exclude_domains }
+#   result: { answer, results: [{ title, url, content }] }
+TAVILY_CALL = r'''async call(input, context3, _canUseTool, _parentMessage, onProgress) {
+        const startTime = performance.now();
+        const { query: query2, allowed_domains, blocked_domains } = input;
+        const apiKey = process.env.TAVILY_API_KEY;
+        if (!apiKey) {
+          const endTime2 = performance.now();
+          return { data: { query: query2, results: ["WebSearch error: TAVILY_API_KEY environment variable not set. Get a free key at https://tavily.com"], durationSeconds: (endTime2 - startTime) / 1e3 } };
+        }
+        try {
+          const body = { api_key: apiKey, query: query2, max_results: 8, include_answer: true };
+          if (allowed_domains && allowed_domains.length > 0) body.include_domains = allowed_domains;
+          if (blocked_domains && blocked_domains.length > 0) body.exclude_domains = blocked_domains;
+          const resp = await axios_default.post("https://api.tavily.com/search", body, { timeout: 30000 });
+          const hits = (resp.data.results || []).map((r) => ({ title: r.title, url: r.url }));
+          const toolUseId = "tavily-" + Date.now();
+          const results = [];
+          if (resp.data.answer) results.push(resp.data.answer);
+          results.push({ tool_use_id: toolUseId, content: hits });
+          if (onProgress) {
+            onProgress({ toolUseID: toolUseId, data: { type: "search_results_received", resultCount: hits.length, query: query2 } });
+          }
+          const endTime2 = performance.now();
+          return { data: { query: query2, results, durationSeconds: (endTime2 - startTime) / 1e3 } };
+        } catch (e7) {
+          const endTime2 = performance.now();
+          return { data: { query: query2, results: ["WebSearch error: " + (e7.message || String(e7))], durationSeconds: (endTime2 - startTime) / 1e3 } };
+        }
+      },'''
+
+patch_re('P6: WebSearch replace with Tavily',
+    r'async call\(input, context3, _canUseTool, _parentMessage, onProgress\) \{.*?return \{ data: data2 \};\s*\},',
+    TAVILY_CALL,
     flags=re.DOTALL,
     count=1)
 
