@@ -28,6 +28,13 @@ export ANTHROPIC_MODEL=MiniMax-M2.7
 node dist/cli_single_patched.js --print "hello"
 ```
 
+启用 WebSearch（需要 Tavily API Key，免费注册：https://tavily.com）：
+
+```bash
+export TAVILY_API_KEY=tvly-xxx
+node dist/cli_single_patched.js
+```
+
 ## 环境要求
 
 | 依赖 | 版本 |
@@ -94,7 +101,7 @@ esbuild src/entrypoints/cli.tsx \
 
 ### patch_single.py — 运行时补丁
 
-对 `cli_single.js` 进行 5 项补丁，输出 `cli_single_patched.js`：
+对 `cli_single.js` 进行 7 项补丁，输出 `cli_single_patched.js`：
 
 | 补丁 | 内容 |
 |------|------|
@@ -104,8 +111,70 @@ esbuild src/entrypoints/cli.tsx \
 | P3b | 移除 count_tokens 端点的 `?beta=true` |
 | P4b | `BROWSER_TOOLS = void 0` → `[]`（双重保险） |
 | P4c | 在流式解析器中添加 `thinking_delta` 的 no-op case |
+| P5 | WebFetch：绕过 `api.anthropic.com` 域名黑名单预检，任意域名均可抓取 |
+| P6 | WebSearch：call() 替换为 Tavily API，支持所有 API provider |
 
 > **P4a 注意**：P4a 补丁已被移除。原先试图将 `content[0].text` 替换为 `.find(b => b.type==="text")` 以兼容 MiniMax 思考块，但该替换会错误地修改 `message.message.content[0].text` 中的子串，导致语法错误。MiniMax 实测无需此补丁。
+
+## 扩展工具配置
+
+### Computer Use（截图 + 鼠标 + 键盘）
+
+`tools/computer-use-mcp.py` 是一个 Python MCP server，替代 Anthropic 内部 native 包，通过 `pyautogui` + `scrot` 实现桌面控制。
+
+**安装：**
+```bash
+pip install mcp pyautogui Pillow
+# Linux 截图需要 scrot：apt install scrot
+```
+
+**MCP 配置（加入 `~/.claude.json`）：**
+```json
+{
+  "mcpServers": {
+    "computer-use": {
+      "command": "python3",
+      "args": ["/path/to/tools/computer-use-mcp.py"]
+    }
+  }
+}
+```
+
+提供三个工具：`computer_screenshot`、`computer_mouse`、`computer_keyboard`。
+
+### 浏览器自动化（替代 Chrome MCP）
+
+`@ant/claude-for-chrome-mcp` 是 Anthropic 内部未发布包，用微软官方 `@playwright/mcp` 替代，详见 `tools/browser-mcp-setup.md`。
+
+**安装：**
+```bash
+npm install -g @playwright/mcp
+npx playwright install chromium
+```
+
+**MCP 配置：**
+```json
+{
+  "mcpServers": {
+    "browser": {
+      "command": "npx",
+      "args": ["@playwright/mcp", "--headless"]
+    }
+  }
+}
+```
+
+去掉 `--headless` 可看到真实浏览器窗口。`browser` 适合网页自动化（有 DOM 感知），`computer-use` 适合桌面 GUI 控制。
+
+### WebSearch（Tavily）
+
+WebSearch 工具的 `call()` 已替换为 Tavily API，不再依赖 Anthropic 服务端搜索，任何 API provider 均可使用。
+
+```bash
+export TAVILY_API_KEY=tvly-xxx   # 免费注册：https://tavily.com
+```
+
+不设置 `TAVILY_API_KEY` 时，工具会出现但调用时返回错误提示。
 
 ## 原理说明
 
@@ -130,6 +199,10 @@ esbuild src/entrypoints/cli.tsx \
 | 交互模式多轮对话（上下文记忆） | ✅ |
 | 工具调用（Write + Bash） | ✅ |
 | MiniMax-M2.7 思考块兼容 | ✅ |
+| WebFetch（任意域名） | ✅ |
+| WebSearch（Tavily） | ✅ |
+| Computer Use（MCP server） | ✅ |
+| 浏览器自动化（Playwright MCP） | ✅ |
 
 ## 目录结构
 
@@ -149,6 +222,9 @@ claude-code-fresh/
 ├── patch_single.py         # 运行时补丁脚本
 ├── scripts/
 │   └── prepare-src.mjs     # 源码预处理
+├── tools/
+│   ├── computer-use-mcp.py     # Computer Use MCP server（截图/鼠标/键盘）
+│   └── browser-mcp-setup.md   # Playwright MCP 配置指南
 ├── dist/                   # 编译产物（gitignore）
 │   ├── cli_single.js       # esbuild 输出
 │   └── cli_single_patched.js  # 最终可运行文件
@@ -164,6 +240,14 @@ claude-code-fresh/
 **Q: 遇到语法错误 `SyntaxError: Unexpected token`**
 
 通常是 patch 脚本的字符串替换匹配了不该替换的位置。检查 `patch_single.py` 中的正则是否用了负向后顾 `(?<!\.)` 防止匹配属性链。
+
+**Q: WebFetch 报 `Unable to verify if domain is safe`**
+
+P5 补丁已绕过此预检，重新运行 `patch_single.py` 确认补丁已应用。
+
+**Q: WebSearch 不工作**
+
+检查 `TAVILY_API_KEY` 环境变量是否已设置。免费 key 在 https://tavily.com 注册获取。
 
 **Q: 编译后文件多大**
 
