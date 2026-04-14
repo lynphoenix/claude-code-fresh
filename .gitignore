@@ -18,3 +18,7 @@ test_single.sh
 .claude/
 .gitnexus
 src/node_modules
+
+# GitNexus 本地索引
+AGENTS.md
+CLAUDE.md
