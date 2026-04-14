@@ -17,3 +17,4 @@ test_single.sh
 # Claude Code 本地状态
 .claude/
 .gitnexus
+src/node_modules
