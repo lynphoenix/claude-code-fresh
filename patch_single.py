@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-patch_single.py v4 — All patches including P4 for MiniMax thinking block compatibility.
+patch_single.py v5 — All patches including P4 for MiniMax thinking block compatibility.
 
 Patches:
   P1: Allow config reading in any directory
   P2: Disable GrowthBook feature flag network requests
   P3a/b: Remove beta query param from API URLs
   P4: MiniMax thinking block compatibility — fix --print output
+  P5: WebFetch — bypass domain blocklist preflight (api.anthropic.com check)
+  P6: WebSearch — enable for all API providers (not just firstParty/vertex/foundry)
 
 Usage: python3 patch_single.py [/build/dist/cli_single.js]
 Output: /build/dist/cli_single_patched.js (same dir, _patched suffix)
@@ -123,6 +125,30 @@ for old_pat, new_pat, name in p4c_patterns:
             break
 else:
     print('  ✗ P4c: no streaming accumulator pattern matched')
+
+# ── P5: WebFetch — bypass domain blocklist preflight ─────────────────────────
+# By default WebFetch calls https://api.anthropic.com/api/web/domain_info?domain=...
+# before every fetch to check if the domain is allowed. This fails when:
+#   1. The network cannot reach api.anthropic.com
+#   2. The domain is on Anthropic's blocklist
+# Fix: replace the entire checkDomainBlocklist function body to always return "allowed".
+patch_re('P5: WebFetch bypass domain blocklist',
+    r'async function checkDomainBlocklist\(domain2\)\s*\{.*?^\}',
+    'async function checkDomainBlocklist(domain2) { return { status: "allowed" }; }',
+    flags=re.DOTALL | re.MULTILINE)
+
+# ── P6: WebSearch — enable for all API providers ──────────────────────────────
+# isEnabled() only returns true for firstParty, vertex (claude-4 models), foundry.
+# With third-party providers (MiniMax, OpenAI-compatible, etc.) the tool is hidden.
+# Note: WebSearch uses Anthropic's server-side web_search_20250305 tool, so it will
+# only actually execute searches when using Anthropic's own API endpoint. With other
+# providers the tool will appear but searches will fail gracefully. Users who want
+# web search with third-party providers should use a Tavily/Brave MCP server instead.
+patch_re('P6: WebSearch enable for all providers',
+    r'(isEnabled\(\)\s*\{)\s*const provider = getAPIProvider\(\);.*?return false;\s*\}',
+    r'\1 return true; }',
+    flags=re.DOTALL,
+    count=1)
 
 # ── Write output ──────────────────────────────────────────────────────────────
 with open(OUT, 'w', encoding='utf-8') as f:
