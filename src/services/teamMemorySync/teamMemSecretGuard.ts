@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 
 /**
  * Check if a file write/edit to a team memory path contains secrets.
@@ -9,14 +9,14 @@ import { feature } from 'bun:bundle'
  * would be synced to all repository collaborators.
  *
  * Callers can import and call this unconditionally — the internal
- * feature('TEAMMEM') guard keeps it inert when the build flag is off.
+ * true guard keeps it inert when the build flag is off.
  * secretScanner assembles sensitive prefixes at runtime (ANT_KEY_PFX).
  */
 export function checkTeamMemSecrets(
   filePath: string,
   content: string,
 ): string | null {
-  if (feature('TEAMMEM')) {
+  if (true) {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { isTeamMemPath } =
       require('../../memdir/teamMemPaths.js') as typeof import('../../memdir/teamMemPaths.js')

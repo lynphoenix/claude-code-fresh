@@ -1756,3 +1756,8 @@ export function setPromptId(id: string | null): void {
   STATE.promptId = id
 }
 
+
+// BRIDGE_MODE: isReplBridgeActive - checks if the REPL bridge is active
+export function isReplBridgeActive(): boolean {
+  return (STATE as any).replBridgeActive ?? false
+}

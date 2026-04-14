@@ -1,3 +1,19 @@
+# 依赖和编译产物
 node_modules/
+node_modules_full
 build-src/
 dist/
+
+# 编译器缓存
+__pycache__/
+*.pyc
+
+# 旧版/调试脚本（不需要）
+patch.py
+transform_src.py
+run_all.sh
+test_single.sh
+
+# Claude Code 本地状态
+.claude/
+.gitnexus

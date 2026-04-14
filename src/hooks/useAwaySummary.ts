@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../stubs/bun-bundle.js'
 import { useEffect, useRef } from 'react'
 import {
   getTerminalFocusState,
@@ -51,7 +51,7 @@ export function useAwaySummary(
   )
 
   useEffect(() => {
-    if (!feature('AWAY_SUMMARY')) return
+    if (!false) return
     if (!gbEnabled) return
 
     function clearTimer(): void {

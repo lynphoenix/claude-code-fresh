@@ -1,6 +1,6 @@
 /* eslint-disable custom-rules/no-process-exit */
 
-import { feature } from 'bun:bundle'
+import { feature } from '../stubs/bun-bundle.js'
 import chalk from 'chalk'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -92,7 +92,7 @@ export async function setup(
     // --messaging-socket-path is passed. Awaited so the server is bound
     // and $CLAUDE_CODE_MESSAGING_SOCKET is exported before any hook
     // (SessionStart in particular) can spawn and snapshot process.env.
-    if (feature('UDS_INBOX')) {
+    if (true) {
       const m = await import('./utils/udsMessaging.js')
       await m.startUdsMessaging(
         messagingSocketPath ?? m.getDefaultUdsSocketPath(),
@@ -292,7 +292,7 @@ export async function setup(
   // raced ahead and memoized an empty bundledSkills list.
   if (!isBareMode()) {
     initSessionMemory() // Synchronous - registers hook, gate check happens lazily
-    if (feature('CONTEXT_COLLAPSE')) {
+    if (true) {
       /* eslint-disable @typescript-eslint/no-require-imports */
       ;(
         require('./services/contextCollapse/index.js') as typeof import('./services/contextCollapse/index.js')
@@ -347,7 +347,7 @@ export async function setup(
         }
       })
     }
-    if (feature('COMMIT_ATTRIBUTION')) {
+    if (false) {
       // Dynamic import to enable dead code elimination (module contains excluded strings).
       // Defer to next tick so the git subprocess spawn runs after first render
       // rather than during the setup() microtask window.
@@ -362,7 +362,7 @@ export async function setup(
     void import('./utils/sessionFileAccessHooks.js').then(m =>
       m.registerSessionFileAccessHooks(),
     ) // Register session file access analytics hooks
-    if (feature('TEAMMEM')) {
+    if (true) {
       void import('./services/teamMemorySync/watcher.js').then(m =>
         m.startTeamMemoryWatcher(),
       ) // Start team memory sync watcher

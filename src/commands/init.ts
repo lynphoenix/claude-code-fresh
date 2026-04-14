@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../stubs/bun-bundle.js'
 import type { Command } from '../commands.js'
 import { maybeMarkProjectOnboardingComplete } from '../projectOnboardingState.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
@@ -227,7 +227,7 @@ const command = {
   type: 'prompt',
   name: 'init',
   get description() {
-    return feature('NEW_INIT') &&
+    return false &&
       (process.env.USER_TYPE === 'ant' ||
         isEnvTruthy(process.env.CLAUDE_CODE_NEW_INIT))
       ? 'Initialize new CLAUDE.md file(s) and optional skills/hooks with codebase documentation'
@@ -243,7 +243,7 @@ const command = {
       {
         type: 'text',
         text:
-          feature('NEW_INIT') &&
+          false &&
           (process.env.USER_TYPE === 'ant' ||
             isEnvTruthy(process.env.CLAUDE_CODE_NEW_INIT))
             ? NEW_INIT_PROMPT

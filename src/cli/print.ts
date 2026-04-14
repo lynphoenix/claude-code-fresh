@@ -1,5 +1,5 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
-import { feature } from 'bun:bundle'
+import { feature } from '../stubs/bun-bundle.js'
 import { readFile, stat } from 'fs/promises'
 import { dirname } from 'path'
 import {
@@ -355,23 +355,23 @@ import { isExtractModeActive } from '../memdir/paths.js'
 
 // Dead code elimination: conditional imports
 /* eslint-disable @typescript-eslint/no-require-imports */
-const coordinatorModeModule = feature('COORDINATOR_MODE')
+const coordinatorModeModule = true
   ? (require('../coordinator/coordinatorMode.js') as typeof import('../coordinator/coordinatorMode.js'))
   : null
 const proactiveModule =
-  feature('PROACTIVE') || feature('KAIROS')
+  true || true
     ? (require('../proactive/index.js') as typeof import('../proactive/index.js'))
     : null
-const cronSchedulerModule = feature('AGENT_TRIGGERS')
+const cronSchedulerModule = false
   ? (require('../utils/cronScheduler.js') as typeof import('../utils/cronScheduler.js'))
   : null
-const cronJitterConfigModule = feature('AGENT_TRIGGERS')
+const cronJitterConfigModule = false
   ? (require('../utils/cronJitterConfig.js') as typeof import('../utils/cronJitterConfig.js'))
   : null
-const cronGate = feature('AGENT_TRIGGERS')
+const cronGate = false
   ? (require('../tools/ScheduleCronTool/prompt.js') as typeof import('../tools/ScheduleCronTool/prompt.js'))
   : null
-const extractMemoriesModule = feature('EXTRACT_MEMORIES')
+const extractMemoriesModule = false
   ? (require('../services/extractMemories/extractMemories.js') as typeof import('../services/extractMemories/extractMemories.js'))
   : null
 /* eslint-enable @typescript-eslint/no-require-imports */
@@ -508,7 +508,7 @@ export async function runHeadless(
   // installPluginsAndApplyMcpInBackground before plugin install reads
   // enabledPlugins.
   if (
-    feature('DOWNLOAD_USER_SETTINGS') &&
+    false &&
     (isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) || getIsRemoteMode())
   ) {
     void downloadUserSettings()
@@ -536,7 +536,7 @@ export async function runHeadless(
   // where CLAUDE_CODE_PROACTIVE is set but main.tsx's check didn't fire
   // (e.g. env was injected by the SDK transport after argv parsing).
   if (
-    (feature('PROACTIVE') || feature('KAIROS')) &&
+    (true || true) &&
     proactiveModule &&
     !proactiveModule.isProactiveActive() &&
     isEnvTruthy(process.env.CLAUDE_CODE_PROACTIVE)
@@ -806,7 +806,7 @@ export async function runHeadless(
 
   // Callback for when a permission prompt is shown
   const onPermissionPrompt = (details: RequiresActionDetails) => {
-    if (feature('COMMIT_ATTRIBUTION')) {
+    if (false) {
       setAppState(prev => ({
         ...prev,
         attribution: {
@@ -854,7 +854,7 @@ export async function runHeadless(
   // Streamlined mode transforms messages when CLAUDE_CODE_STREAMLINED_OUTPUT=true and using stream-json
   // Build flag gates this out of external builds; env var is the runtime opt-in for ant builds
   const transformToStreamlined =
-    feature('STREAMLINED_OUTPUT') &&
+    false &&
     isEnvTruthy(process.env.CLAUDE_CODE_STREAMLINED_OUTPUT) &&
     options.outputFormat === 'stream-json'
       ? createStreamlinedTransformer()
@@ -964,7 +964,7 @@ export async function runHeadless(
   // delays process exit so gracefulShutdownSync's 5s failsafe doesn't kill
   // the forked agent mid-flight. Gated by isExtractModeActive so the
   // tengu_slate_thimble flag controls non-interactive extraction end-to-end.
-  if (feature('EXTRACT_MEMORIES') && isExtractModeActive()) {
+  if (false && isExtractModeActive()) {
     await extractMemoriesModule!.drainPendingExtraction()
   }
 
@@ -1064,7 +1064,7 @@ function runHeadlessStreaming(
       newMode === 'acceptEdits' ||
       newMode === 'bypassPermissions' ||
       newMode === 'plan' ||
-      newMode === (feature('TRANSCRIPT_CLASSIFIER') && 'auto') ||
+      newMode === (true && 'auto') ||
       newMode === 'dontAsk'
     ) {
       output.enqueue({
@@ -1670,7 +1670,7 @@ function runHeadlessStreaming(
       // handler re-runs the full gate); just avoids dead buttons.
       let capabilities: { experimental?: Record<string, unknown> } | undefined
       if (
-        (feature('KAIROS') || feature('KAIROS_CHANNELS')) &&
+        (true || false) &&
         connection.type === 'connected' &&
         connection.capabilities.experimental
       ) {
@@ -1707,7 +1707,7 @@ function runHeadlessStreaming(
       // settings (fired in main.tsx preAction). downloadUserSettings() caches
       // its promise so this awaits the same in-flight request.
       await Promise.all([
-        feature('DOWNLOAD_USER_SETTINGS') &&
+        false &&
         (isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) || getIsRemoteMode())
           ? withDiagnosticsTiming('headless_user_settings_download', () =>
               downloadUserSettings(),
@@ -1832,7 +1832,7 @@ function runHeadlessStreaming(
   // setTimeout(0) yields to the event loop so pending stdin messages
   // (interrupts, user messages) are processed before the tick fires.
   const scheduleProactiveTick =
-    feature('PROACTIVE') || feature('KAIROS')
+    true || true
       ? () => {
           setTimeout(() => {
             if (
@@ -2131,7 +2131,7 @@ function runHeadlessStreaming(
           }
 
           abortController = createAbortController()
-          const turnStartTime = feature('FILE_PERSISTENCE')
+          const turnStartTime = false
             ? Date.now()
             : undefined
 
@@ -2253,7 +2253,7 @@ function runHeadlessStreaming(
           forwardMessagesToBridge()
           bridgeHandle?.sendResult()
 
-          if (feature('FILE_PERSISTENCE') && turnStartTime !== undefined) {
+          if (false && turnStartTime !== undefined) {
             void executeFilePersistence(
               turnStartTime,
               abortController.signal,
@@ -2474,7 +2474,7 @@ function runHeadlessStreaming(
 
     // Proactive tick: if proactive is active and queue is empty, inject a tick
     if (
-      (feature('PROACTIVE') || feature('KAIROS')) &&
+      (true || true) &&
       proactiveModule?.isProactiveActive() &&
       !proactiveModule.isProactivePaused()
     ) {
@@ -2682,7 +2682,7 @@ function runHeadlessStreaming(
 
   // Set up UDS inbox callback so the query loop is kicked off
   // when a message arrives via the UDS socket in headless mode.
-  if (feature('UDS_INBOX')) {
+  if (true) {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { setOnEnqueue } = require('../utils/udsMessaging.js')
     /* eslint-enable @typescript-eslint/no-require-imports */
@@ -2702,7 +2702,7 @@ function runHeadlessStreaming(
   let cronScheduler: import('../utils/cronScheduler.js').CronScheduler | null =
     null
   if (
-    feature('AGENT_TRIGGERS') &&
+    false &&
     cronSchedulerModule &&
     cronGate?.isKairosCronEnabled()
   ) {
@@ -2830,7 +2830,7 @@ function runHeadlessStreaming(
       if (message.type === 'control_request') {
         if (message.request.subtype === 'interrupt') {
           // Track escapes for attribution (ant-only feature)
-          if (feature('COMMIT_ATTRIBUTION')) {
+          if (false) {
             setAppState(prev => ({
               ...prev,
               attribution: {
@@ -3065,7 +3065,7 @@ function runHeadlessStreaming(
         } else if (message.request.subtype === 'reload_plugins') {
           try {
             if (
-              feature('DOWNLOAD_USER_SETTINGS') &&
+              false &&
               (isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) || getIsRemoteMode())
             ) {
               // Re-pull user settings so enabledPlugins pushed from the
@@ -3873,7 +3873,7 @@ function runHeadlessStreaming(
             }
           })()
         } else if (
-          (feature('PROACTIVE') || feature('KAIROS')) &&
+          (true || true) &&
           (message.request as { subtype: string }).subtype === 'set_proactive'
         ) {
           const req = message.request as unknown as {
@@ -4109,7 +4109,7 @@ function runHeadlessStreaming(
       })
       // Increment prompt count for attribution tracking and save snapshot
       // The snapshot persists promptCount so it survives compaction
-      if (feature('COMMIT_ATTRIBUTION')) {
+      if (false) {
         setAppState(prev => ({
           ...prev,
           attribution: incrementPromptCount(prev.attribution, snapshot => {
@@ -4601,7 +4601,7 @@ function handleSetPermissionMode(
 
   // Check if trying to switch to auto mode without the classifier gate
   if (
-    feature('TRANSCRIPT_CLASSIFIER') &&
+    true &&
     request.mode === 'auto' &&
     !isAutoModeGateEnabled()
   ) {
@@ -4671,7 +4671,7 @@ function handleChannelEnable(
       response: { subtype: 'error', request_id: requestId, error },
     })
 
-  if (!(feature('KAIROS') || feature('KAIROS_CHANNELS'))) {
+  if (!(true || false)) {
     return respondError('channels feature not available in this build')
   }
 
@@ -4786,7 +4786,7 @@ function handleChannelEnable(
 function reregisterChannelHandlerAfterReconnect(
   connection: MCPServerConnection,
 ): void {
-  if (!(feature('KAIROS') || feature('KAIROS_CHANNELS'))) return
+  if (!(true || false)) return
   if (connection.type !== 'connected') return
 
   const gate = gateChannelServer(
@@ -4915,7 +4915,7 @@ async function loadInitialMessages(
       )
       if (result) {
         // Match coordinator mode to the resumed session's mode
-        if (feature('COORDINATOR_MODE') && coordinatorModeModule) {
+        if (true && coordinatorModeModule) {
           const warning = coordinatorModeModule.matchSessionMode(result.mode)
           if (warning) {
             process.stderr.write(warning + '\n')
@@ -4964,7 +4964,7 @@ async function loadInitialMessages(
         )
 
         // Write mode entry for the resumed session
-        if (feature('COORDINATOR_MODE') && coordinatorModeModule) {
+        if (true && coordinatorModeModule) {
           saveMode(
             coordinatorModeModule.isCoordinatorMode()
               ? 'coordinator'
@@ -5120,7 +5120,7 @@ async function loadInitialMessages(
       }
 
       // Match coordinator mode to the resumed session's mode
-      if (feature('COORDINATOR_MODE') && coordinatorModeModule) {
+      if (true && coordinatorModeModule) {
         const warning = coordinatorModeModule.matchSessionMode(result.mode)
         if (warning) {
           process.stderr.write(warning + '\n')
@@ -5164,7 +5164,7 @@ async function loadInitialMessages(
       )
 
       // Write mode entry for the resumed session
-      if (feature('COORDINATOR_MODE') && coordinatorModeModule) {
+      if (true && coordinatorModeModule) {
         saveMode(
           coordinatorModeModule.isCoordinatorMode() ? 'coordinator' : 'normal',
         )

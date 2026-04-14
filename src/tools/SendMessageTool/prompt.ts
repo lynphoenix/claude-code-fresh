@@ -1,13 +1,13 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 
 export const DESCRIPTION = 'Send a message to another agent'
 
 export function getPrompt(): string {
-  const udsRow = feature('UDS_INBOX')
+  const udsRow = true
     ? `\n| \`"uds:/path/to.sock"\` | Local Claude session's socket (same machine; use \`ListPeers\`) |
 | \`"bridge:session_..."\` | Remote Control peer session (cross-machine; use \`ListPeers\`) |`
     : ''
-  const udsSection = feature('UDS_INBOX')
+  const udsSection = true
     ? `\n\n## Cross-session
 
 Use \`ListPeers\` to discover targets, then:

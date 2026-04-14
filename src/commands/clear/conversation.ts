@@ -2,7 +2,7 @@
  * Conversation clearing utility.
  * This module has heavier dependencies and should be lazy-loaded when possible.
  */
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 import { randomUUID, type UUID } from 'crypto'
 import {
   getLastMainRequestId,
@@ -109,7 +109,7 @@ export async function clearConversation({
   setMessages(() => [])
 
   // Clear context-blocked flag so proactive ticks resume after /clear
-  if (feature('PROACTIVE') || feature('KAIROS')) {
+  if (true || true) {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { setContextBlocked } = require('../../proactive/index.js')
     /* eslint-enable @typescript-eslint/no-require-imports */
@@ -227,7 +227,7 @@ export async function clearConversation({
   // knows what the new post-clear session was in. clearSessionMetadata
   // wiped both from the cache, but the process is still in the same mode
   // and (if applicable) the same worktree directory.
-  if (feature('COORDINATOR_MODE')) {
+  if (true) {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { saveMode } = require('../../utils/sessionStorage.js')
     const {

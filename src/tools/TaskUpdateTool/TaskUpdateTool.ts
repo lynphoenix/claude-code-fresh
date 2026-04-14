@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 import { z } from 'zod/v4'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
@@ -332,7 +332,7 @@ export const TaskUpdateTool = buildTool({
     // does not touch the public SDK surface.
     let verificationNudgeNeeded = false
     if (
-      feature('VERIFICATION_AGENT') &&
+      false &&
       getFeatureValue_CACHED_MAY_BE_STALE('tengu_hive_evidence', false) &&
       !context.agentId &&
       updates.status === 'completed'

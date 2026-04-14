@@ -1,5 +1,5 @@
 import { c as _c } from "react/compiler-runtime";
-import { feature } from 'bun:bundle';
+import { feature } from '../stubs/bun-bundle.js';
 import * as React from 'react';
 import { useExitOnCtrlCDWithKeybindings } from '../hooks/useExitOnCtrlCDWithKeybindings.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
@@ -110,7 +110,7 @@ export function ThemePicker(t0) {
   const exitState = useExitOnCtrlCDWithKeybindings(skipExitHandling ? _temp2 : undefined);
   let t10;
   if ($[7] === Symbol.for("react.memo_cache_sentinel")) {
-    t10 = [...(feature("AUTO_THEME") ? [{
+    t10 = [...(false ? [{
       label: "Auto (match terminal)",
       value: "auto" as const
     }] : []), {

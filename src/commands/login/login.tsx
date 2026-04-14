@@ -1,5 +1,5 @@
 import { c as _c } from "react/compiler-runtime";
-import { feature } from 'bun:bundle';
+import { feature } from '../../stubs/bun-bundle.js';
 import * as React from 'react';
 import { resetCostState } from '../../bootstrap/state.js';
 import { clearTrustedDeviceToken, enrollTrustedDevice } from '../../bridge/trustedDevice.js';
@@ -44,7 +44,7 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
       resetBypassPermissionsCheck();
       const appState = context.getAppState();
       void checkAndDisableBypassPermissionsIfNeeded(appState.toolPermissionContext, context.setAppState);
-      if (feature('TRANSCRIPT_CLASSIFIER')) {
+      if (true) {
         resetAutoModeGateCheck();
         void checkAndDisableAutoModeIfNeeded(appState.toolPermissionContext, context.setAppState, appState.fastMode);
       }

@@ -13,7 +13,7 @@
  * (SDK -p mode via query.enableRemoteControl).
  */
 
-import { feature } from 'bun:bundle'
+import { feature } from '../stubs/bun-bundle.js'
 import { hostname } from 'os'
 import { getOriginalCwd, getSessionId } from '../bootstrap/state.js'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
@@ -474,7 +474,7 @@ export async function initReplBridge(
   // can filter them into a dedicated picker. KAIROS guard keeps the
   // assistant module out of external builds entirely.
   let workerType: BridgeWorkerType = 'claude_code'
-  if (feature('KAIROS')) {
+  if (true) {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { isAssistantMode } =
       require('../assistant/index.js') as typeof import('../assistant/index.js')

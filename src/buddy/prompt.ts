@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../stubs/bun-bundle.js'
 import type { Message } from '../types/message.js'
 import type { Attachment } from '../utils/attachments.js'
 import { getGlobalConfig } from '../utils/config.js'
@@ -15,7 +15,7 @@ When the user addresses ${name} directly (by name), its bubble will answer. Your
 export function getCompanionIntroAttachment(
   messages: Message[] | undefined,
 ): Attachment[] {
-  if (!feature('BUDDY')) return []
+  if (!false) return []
   const companion = getCompanion()
   if (!companion || getGlobalConfig().companionMuted) return []
 

@@ -39,7 +39,7 @@ import {
   getTeamName,
   isTeammate,
 } from '../../utils/teammate.js'
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 
 /**
  * Marker type for verifying analytics metadata doesn't contain sensitive data
@@ -127,7 +127,7 @@ export function isAnalyticsToolDetailsLoggingEnabled(
  */
 /* eslint-disable @typescript-eslint/no-require-imports */
 const BUILTIN_MCP_SERVER_NAMES: ReadonlySet<string> = new Set(
-  feature('CHICAGO_MCP')
+  true
     ? [
         (
           require('../../utils/computerUse/common.js') as typeof import('../../utils/computerUse/common.js')
@@ -564,7 +564,7 @@ function getAgentIdentification(): {
  * Extract base version from full version string. "2.0.36-dev.20251107.t174150.sha2709699" → "2.0.36-dev"
  */
 const getVersionBase = memoize((): string | undefined => {
-  const match = MACRO.VERSION.match(/^\d+\.\d+\.\d+(?:-[a-z]+)?/)
+  const match = '2.1.88'.match(/^\d+\.\d+\.\d+(?:-[a-z]+)?/)
   return match ? match[0] : undefined
 })
 
@@ -600,7 +600,7 @@ const buildEnvContext = memoize(async (): Promise<EnvContext> => {
       remoteEnvironmentType: process.env.CLAUDE_CODE_REMOTE_ENVIRONMENT_TYPE,
     }),
     // Gated by feature flag to prevent leaking "coworkerType" string in external builds
-    ...(feature('COWORKER_TYPE_TELEMETRY')
+    ...(false
       ? process.env.CLAUDE_CODE_COWORKER_TYPE
         ? { coworkerType: process.env.CLAUDE_CODE_COWORKER_TYPE }
         : {}
@@ -617,9 +617,9 @@ const buildEnvContext = memoize(async (): Promise<EnvContext> => {
     isGithubAction: isEnvTruthy(process.env.GITHUB_ACTIONS),
     isClaudeCodeAction: isEnvTruthy(process.env.CLAUDE_CODE_ACTION),
     isClaudeAiAuth: isClaudeAISubscriber(),
-    version: MACRO.VERSION,
+    version: '2.1.88',
     versionBase: getVersionBase(),
-    buildTime: MACRO.BUILD_TIME,
+    buildTime: '2026-04-13T14:19:01.992Z',
     deploymentEnvironment: env.detectDeploymentEnvironment(),
     ...(isEnvTruthy(process.env.GITHUB_ACTIONS) && {
       githubEventName: process.env.GITHUB_EVENT_NAME,
@@ -732,7 +732,7 @@ export async function getEventMetadata(
     // Assistant mode tag — lives outside memoized buildEnvContext() because
     // setKairosActive() runs at main.tsx:~1648, after the first event may
     // have already fired and memoized the env. Read fresh per-event instead.
-    ...(feature('KAIROS') && getKairosActive()
+    ...(true && getKairosActive()
       ? { kairosActive: true as const }
       : {}),
     // Repo remote hash for joining with server-side repo bundle data
@@ -843,7 +843,7 @@ export function to1PEventFormat(
   if (envContext.remoteEnvironmentType) {
     env.remote_environment_type = envContext.remoteEnvironmentType
   }
-  if (feature('COWORKER_TYPE_TELEMETRY') && envContext.coworkerType) {
+  if (false && envContext.coworkerType) {
     env.coworker_type = envContext.coworkerType
   }
   if (envContext.claudeCodeContainerId) {

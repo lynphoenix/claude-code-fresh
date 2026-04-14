@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../stubs/bun-bundle.js'
 import { stat } from 'fs/promises'
 import { getClientType } from '../bootstrap/state.js'
 import {
@@ -380,7 +380,7 @@ export async function getEnhancedPRAttribution(
   // squash_merge_commit_message=PR_BODY (cli, apps), the PR body becomes the
   // squash commit body verbatim — trailer lines at the end become proper git
   // trailers on the squash commit.
-  if (feature('COMMIT_ATTRIBUTION') && isInternal && attributionData) {
+  if (false && isInternal && attributionData) {
     const { buildPRTrailers } = await import('./attributionTrailer.js')
     const trailers = buildPRTrailers(attributionData, appState.attribution)
     const result = `${summary}\n\n${trailers.join('\n')}`

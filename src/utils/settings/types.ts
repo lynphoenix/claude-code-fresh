@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 import { z } from 'zod/v4'
 import { SandboxSettingsSchema } from '../../entrypoints/sandboxTypes.js'
 import { isEnvTruthy } from '../envUtils.js'
@@ -58,7 +58,7 @@ export const PermissionsSchema = lazySchema(() =>
         ),
       defaultMode: z
         .enum(
-          feature('TRANSCRIPT_CLASSIFIER')
+          true
             ? PERMISSION_MODES
             : EXTERNAL_PERMISSION_MODES,
         )
@@ -68,7 +68,7 @@ export const PermissionsSchema = lazySchema(() =>
         .enum(['disable'])
         .optional()
         .describe('Disable the ability to bypass permission prompts'),
-      ...(feature('TRANSCRIPT_CLASSIFIER')
+      ...(true
         ? {
             disableAutoMode: z
               .enum(['disable'])
@@ -805,7 +805,7 @@ export const SettingsSchema = lazySchema(() =>
         .enum(['latest', 'stable'])
         .optional()
         .describe('Release channel for auto-updates (latest or stable)'),
-      ...(feature('LODESTONE')
+      ...(true
         ? {
             disableDeepLinkRegistration: z
               .enum(['disable'])
@@ -838,7 +838,7 @@ export const SettingsSchema = lazySchema(() =>
               ),
           }
         : {}),
-      ...(feature('PROACTIVE') || feature('KAIROS')
+      ...(true || true
         ? {
             minSleepDurationMs: z
               .number()
@@ -861,7 +861,7 @@ export const SettingsSchema = lazySchema(() =>
               ),
           }
         : {}),
-      ...(feature('VOICE_MODE')
+      ...(true
         ? {
             voiceEnabled: z
               .boolean()
@@ -869,7 +869,7 @@ export const SettingsSchema = lazySchema(() =>
               .describe('Enable voice mode (hold-to-talk dictation)'),
           }
         : {}),
-      ...(feature('KAIROS')
+      ...(true
         ? {
             assistant: z
               .boolean()
@@ -919,7 +919,7 @@ export const SettingsSchema = lazySchema(() =>
             'plugins may push inbound messages. Undefined falls back to the default. ' +
             'Requires channelsEnabled: true.',
         ),
-      ...(feature('KAIROS') || feature('KAIROS_BRIEF')
+      ...(true || true
         ? {
             defaultView: z
               .enum(['chat', 'transcript'])
@@ -965,7 +965,7 @@ export const SettingsSchema = lazySchema(() =>
         .describe(
           'Whether the user has accepted the bypass permissions mode dialog',
         ),
-      ...(feature('TRANSCRIPT_CLASSIFIER')
+      ...(true
         ? {
             skipAutoPermissionPrompt: z
               .boolean()

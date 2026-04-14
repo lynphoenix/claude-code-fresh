@@ -2682,7 +2682,7 @@ export function buildExportData(
   facets: Map<string, SessionFacets>,
   remoteStats?: { hosts: RemoteHostInfo[]; totalCopied: number },
 ): InsightsExport {
-  const version = typeof MACRO !== 'undefined' ? MACRO.VERSION : 'unknown'
+  const version = typeof MACRO !== 'undefined' ? '2.1.88' : 'unknown'
 
   const remote_hosts_collected = remoteStats?.hosts
     .filter(h => h.sessionCount > 0)

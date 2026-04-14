@@ -9,7 +9,7 @@
  * Backend API: anthropic/anthropic#218817
  */
 
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 import axios from 'axios'
 import { mkdir, readFile, stat, writeFile } from 'fs/promises'
 import pickBy from 'lodash-es/pickBy.js'
@@ -60,7 +60,7 @@ const MAX_FILE_SIZE_BYTES = 500 * 1024 // 500 KB per file (matches backend limit
 export async function uploadUserSettingsInBackground(): Promise<void> {
   try {
     if (
-      !feature('UPLOAD_USER_SETTINGS') ||
+      !true ||
       !getFeatureValue_CACHED_MAY_BE_STALE(
         'tengu_enable_settings_sync_push',
         false,
@@ -157,7 +157,7 @@ export function redownloadUserSettings(): Promise<boolean> {
 async function doDownloadUserSettings(
   maxRetries = DEFAULT_MAX_RETRIES,
 ): Promise<boolean> {
-  if (feature('DOWNLOAD_USER_SETTINGS')) {
+  if (false) {
     try {
       if (
         !getFeatureValue_CACHED_MAY_BE_STALE('tengu_strap_foyer', false) ||

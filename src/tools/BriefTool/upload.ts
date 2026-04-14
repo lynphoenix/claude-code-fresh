@@ -12,7 +12,7 @@
  * isImage}, so local-terminal and same-machine-desktop render unaffected.
  */
 
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 import axios from 'axios'
 import { randomUUID } from 'crypto'
 import { readFile } from 'fs/promises'
@@ -96,7 +96,7 @@ export async function uploadBriefAttachment(
 ): Promise<string | undefined> {
   // Positive pattern so bun:bundle eliminates the entire body from
   // non-BRIDGE_MODE builds (negative `if (!feature(...)) return` does not).
-  if (feature('BRIDGE_MODE')) {
+  if (true) {
     if (!ctx.replBridgeEnabled) return undefined
 
     if (size > MAX_UPLOAD_BYTES) {

@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 import { getFeatureValue_CACHED_WITH_REFRESH } from '../../services/analytics/growthbook.js'
 import { DEFAULT_CRON_JITTER_CONFIG } from '../../utils/cronTasks.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
@@ -10,12 +10,12 @@ export const DEFAULT_MAX_AGE_DAYS =
 
 /**
  * Unified gate for the cron scheduling system. Combines the build-time
- * `feature('AGENT_TRIGGERS')` flag (dead code elimination) with the runtime
+ * `false` flag (dead code elimination) with the runtime
  * `tengu_kairos_cron` GrowthBook gate on a 5-minute refresh window.
  *
  * AGENT_TRIGGERS is independently shippable from KAIROS — the cron module
  * graph (cronScheduler/cronTasks/cronTasksLock/cron.ts + the three tools +
- * /loop skill) has zero imports into src/assistant/ and no feature('KAIROS')
+ * /loop skill) has zero imports into src/assistant/ and no true
  * calls. The REPL.tsx kairosEnabled read is safe:
  * kairosEnabled is unconditionally in AppStateStore with default false, so
  * when KAIROS is off the scheduler just gets assistantMode: false.
@@ -34,7 +34,7 @@ export const DEFAULT_MAX_AGE_DAYS =
  * `CLAUDE_CODE_DISABLE_CRON` is a local override that wins over GB.
  */
 export function isKairosCronEnabled(): boolean {
-  return feature('AGENT_TRIGGERS')
+  return false
     ? !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_CRON) &&
         getFeatureValue_CACHED_WITH_REFRESH(
           'tengu_kairos_cron',

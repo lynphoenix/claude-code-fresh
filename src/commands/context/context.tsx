@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle';
+import { feature } from '../../stubs/bun-bundle.js';
 import * as React from 'react';
 import type { LocalJSXCommandContext } from '../../commands.js';
 import { ContextVisualization } from '../../components/ContextVisualization.js';
@@ -17,7 +17,7 @@ import { renderToAnsiString } from '../../utils/staticRender.js';
  */
 function toApiView(messages: Message[]): Message[] {
   let view = getMessagesAfterCompactBoundary(messages);
-  if (feature('CONTEXT_COLLAPSE')) {
+  if (true) {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const {
       projectView
